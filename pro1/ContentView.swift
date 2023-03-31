@@ -48,6 +48,32 @@ struct ContentView: View {
         }.accentColor(.red)
     }
 }
+struct pictureText: View{
+    var pictureName=""
+    var text=""
+    let wsize=180.0
+    var body: some View{
+        ZStack(alignment:.bottom){
+            Image(pictureName)
+                .resizable()
+                .cornerRadius(10.0)
+                //.frame(width: wsize,height: wsize)
+            
+            Text(text)
+                .font(.body)
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+                .padding(.all, 7.0)
+                .frame(width:wsize)
+                .background(
+                    .ultraThinMaterial
+                        .opacity(0.9)
+                )
+                .cornerRadius(10.0)
+        }
+        .frame(width: wsize,height: wsize*1.5)
+    }
+}
 
 struct listen: View{
     var body: some View{
@@ -58,6 +84,11 @@ struct listen: View{
                     .padding(.leading, 20.0)
 
                 Divider()
+                ScrollView(.horizontal,showsIndicators: false){
+                    HStack{
+                        Text("tset")
+                    }
+                }
             }
         }
     }
