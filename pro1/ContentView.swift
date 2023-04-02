@@ -19,7 +19,7 @@ var isMusicDetail=false
 let musicIndex=0
 
 let albums = [
-    Album(name:"mojito", singer: "Jzhou", text:"mojito", describe:"best for you", time: 190),
+    Album(name:"mojito", singer: "Jay Chou", text:"Mojito", describe:"best for you", time: 190),
     Album(name:"ed", singer: "", text:"divide", describe:"best for you", time: 200),
     Album(name:"hybrid theory", singer: "Jzhou", text:"in the end", describe:"best for you", time: 190),
     Album(name:"linkin park1", singer: "Jzhou", text:"last in the fire", describe:"best for you", time: 190),
@@ -113,7 +113,7 @@ struct pCard: View{
             ZStack(alignment:.bottom){
                 Image(album.name)
                     .resizable()
-                    .cornerRadius(10.0)
+                    .cornerRadius(15.0)
                 
                 Text(album.text)
                     .font(.body)
@@ -137,39 +137,16 @@ struct DetailView: View {
     var body: some View {
         ScrollView{
             VStack {
-                Spacer()
-                HStack{
+                ForEach(0 ... 3, id: \.self) { index in
                     Spacer()
-                    pCard(album: albums[0],mul:1.0)
-                    Spacer()
-                    pCard(album: albums[1],mul:1.0)
-                    Spacer()
+                    HStack{
+                        Spacer()
+                        pCard(album: albums[index*2],mul:1.0)
+                        Spacer()
+                        pCard(album: albums[index*2+1],mul:1.0)
+                        Spacer()
+                    }
                 }
-                Spacer()
-                HStack{
-                    Spacer()
-                    pCard(album: albums[2],mul:1.0)
-                    Spacer()
-                    pCard(album: albums[3],mul:1.0)
-                    Spacer()
-                }
-                Spacer()
-                HStack{
-                    Spacer()
-                    pCard(album: albums[4],mul:1.0)
-                    Spacer()
-                    pCard(album: albums[5],mul:1.0)
-                    Spacer()
-                }
-                Spacer()
-                HStack{
-                    Spacer()
-                    pCard(album: albums[6],mul:1.0)
-                    Spacer()
-                    pCard(album: albums[7],mul:1.0)
-                    Spacer()
-                }
-                Spacer()
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -185,9 +162,12 @@ struct DetailView: View {
 }
 
 
+
 struct MusicView: View {
     var album:Album
     //环境值
+    let lightShadowColor = UIColor(red: 0.820, green: 0.851,blue: 0.902, alpha: 1.0)
+    let darkShadowColor = UIColor(red: 1.000, green: 1.000,blue: 1.000, alpha: 1.0)
     @Environment(\.presentationMode) var mode
     var body: some View {
         ScrollView{
@@ -196,19 +176,98 @@ struct MusicView: View {
                 Image(album.name)
                     .resizable()
                     .frame(width:250,height: 250)
-                    .cornerRadius(10.0)
-                
+                    .cornerRadius(30.0)
+                    .shadow(color: Color(uiColor: lightShadowColor),
+                            radius: 5, x: 6, y: 6)
+                    .shadow(color: Color(uiColor: darkShadowColor),
+                            radius: 5, x: -6, y: -6)
                 Text(album.name)
-                    .font(.system(size:40))
+                    .font(.system(size:30))
                     .fontWeight(.medium)
                     
                 Text(album.singer)
-                    .font(.system(size:30))
+                    .font(.system(size:25))
                     .fontWeight(.light)
                     .foregroundColor(.red)
                 
-                Text("流行 2023 无损")
+                Text("流行 · 2023 · 无损")
+                    .font(.system(size:12))
+                    .fontWeight(.light)
                     .foregroundColor(.gray)
+                
+                HStack{
+                    HStack{
+                        Image(systemName: "play.fill")
+                            .resizable()
+                            .frame(width:20,height: 20)
+                        Text("播放")
+                    }.foregroundColor(.red)
+                        .frame(width:160,height:50)
+                        .background(Color.init(uiColor: .systemGray6))
+                        .cornerRadius(10.0)
+                        .padding(.horizontal, 6.0)
+                    HStack{
+                        Image(systemName: "shuffle")
+                            .resizable()
+                            .frame(width:20,height: 20)
+                        Text("随机播放")
+                    }.foregroundColor(.red)
+                        .frame(width:160,height:50)
+                        .background(Color.init(uiColor: .systemGray6))
+                        .cornerRadius(10.0)
+                        .padding(.horizontal, 6.0)
+                }
+                Spacer()
+                Group{
+                    ForEach(0 ... 7, id: \.self) { index in
+                        Divider()
+                            .padding(.horizontal)
+                        HStack{
+                            Image(systemName: "star.fill")
+                                .resizable()
+                                .frame(width: 15,height: 15)
+                                .foregroundColor(.gray)
+                                .padding(.leading, 2.0)
+                            Text("\(index+1)")
+                                .foregroundColor(.gray)
+                            Text(albums[index].name)
+                                .padding(.leading)
+                            Spacer()
+                            Image(systemName: "ellipsis")
+                                .rotationEffect(Angle.init(degrees: 90))
+                        }.padding(.vertical, 3.0)
+                    }
+                    Divider()
+                        .padding(.horizontal)
+                }
+                
+                HStack{
+                    VStack(alignment:.leading){
+                        Text("Apple 数字母带")
+                            .font(.system(size:14))
+                            .fontWeight(.light)
+                            .foregroundColor(.gray)
+                            .padding(.leading, 10.0)
+                            .padding(.vertical, 3.0)
+                        Text("2022年12月14日")
+                            .font(.system(size:14))
+                            .fontWeight(.light)
+                            .foregroundColor(.gray)
+                            .padding(.leading, 10.0)
+                        Text("8首歌曲，30分钟")
+                            .font(.system(size:14))
+                            .fontWeight(.light)
+                            .foregroundColor(.gray)
+                            .padding(.leading, 10.0)
+                        Text("2022 Bin Music International Limited")
+                            .font(.system(size:14))
+                            .fontWeight(.light)
+                            .foregroundColor(.gray)
+                            .padding(.leading, 10.0)
+                    }
+                    Spacer()
+                }
+                
                 
             }
         }
