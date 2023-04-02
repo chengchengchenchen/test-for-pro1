@@ -15,12 +15,10 @@ struct Album{
     var describe: String
     var time:Int
 }
-var isMusicDetail=false
-let musicIndex=0
 
 let albums = [
     Album(name:"mojito", singer: "Jay Chou", text:"Mojito", describe:"best for you", time: 190),
-    Album(name:"ed", singer: "", text:"divide", describe:"best for you", time: 200),
+    Album(name:"ed", singer: "none", text:"divide", describe:"best for you", time: 200),
     Album(name:"hybrid theory", singer: "Jzhou", text:"in the end", describe:"best for you", time: 190),
     Album(name:"linkin park1", singer: "Jzhou", text:"last in the fire", describe:"best for you", time: 190),
     Album(name:"taylor", singer: "Jzhou", text:"taylor", describe:"best for you", time: 190),
@@ -28,19 +26,18 @@ let albums = [
     Album(name:"ignite", singer: "Jzhou", text:"league of legends", describe:"best for you", time: 190),
     Album(name:"adam", singer: "Jzhou", text:"chasing the sun", describe:"best for you", time: 190)
 ]
+let lightShadowColor = UIColor(red: 0.720, green: 0.751,blue: 0.802, alpha: 1.0)
+let darkShadowColor = UIColor(red: 1.000, green: 1.000,blue: 1.000, alpha: 1.0)
+
 struct ContentView: View {
-    @State private var showingSheet = false
+    @State var isPlayed = false
+    @State var index=0
+    @State private var showModal = false
+    
     var body: some View {
-        if(isMusicDetail){
-            Image("mojito")
-                .resizable()
-                .frame(width: 800)
-                .ignoresSafeArea()
-                .blur(radius: 30)
-        }
         ZStack(alignment: .bottom){
             TabView{
-                listen()
+                listen(a: $index)
                     .tabItem({
                         Group{
                             Text("listen now")
@@ -76,16 +73,50 @@ struct ContentView: View {
                         }
                     })
             }.accentColor(.red)
+                .fullScreenCover(isPresented: $showModal){
+                    FullScreenView.init(isPlayed: $isPlayed, index: $index)
+                    }
                 .overlay(
                     VStack() {
                         Divider()
                         HStack {
-                            Image(systemName: "play.circle.fill")
-                                .resizable()
-                                .frame(width:40,height: 40)
-                            Text("Now playing")
+                            Button(action: {
+                                showModal.toggle()
+                            }){
+                                Image(albums[index].name)
+                                    .resizable()
+                                    .frame(width:40,height: 40)
+                                Text(albums[index].name)
+                            }.foregroundColor(.black)
+                            
                             Spacer()
-                            Image(systemName: "forward.fill")
+                            Button(action: {
+                                withAnimation(.linear){
+                                    isPlayed.toggle()
+                            }}){
+                                if(isPlayed){
+                                    Image(systemName: "pause.fill")
+                                        .resizable()
+                                        .frame(width:25,height: 25)
+                                }else{
+                                    Image(systemName: "play.fill")
+                                        .resizable()
+                                        .frame(width:25,height: 25)
+                                        
+                                }
+                            }.foregroundColor(.black)
+                                .padding(.horizontal)
+                            
+                            Button(action: {
+                                withAnimation(.easeIn){
+                                    index=(index+1)%8
+                                }
+                            }){
+                                Image(systemName: "forward.fill")
+                                    .resizable()
+                                    .frame(width:25,height: 18)
+                            }.foregroundColor(.black)
+                            
                         }.padding(.vertical, 5)
                             .padding(.horizontal, 10)
                             .padding(.trailing, 15)
@@ -97,6 +128,129 @@ struct ContentView: View {
         }
     }
 }
+struct FullScreenView: View {
+    @Environment(\.presentationMode) var presentationMode
+    @State private var progress: CGFloat = 0.2
+    @Binding var isPlayed:Bool
+    @Binding var index:Int
+    @State var time=200
+    
+    var frame: Double {
+        isPlayed ? 340 : 300
+    }
+    var body: some View {
+        ZStack{
+            Image(albums[index].name)
+                .resizable()
+                .blur(radius: 10)
+                .frame(width: 900,height: 900)
+            VStack{
+                Spacer().frame(height:40)
+                HStack{
+                    Button(action:{
+                        presentationMode.wrappedValue.dismiss()
+                    }){
+                        Image(systemName: "chevron.left")
+                            .resizable()
+                            .frame(width: 20,height: 20)
+                            .foregroundColor(.gray)
+                            
+                    }.padding([.top, .leading], 6.0)
+                    Spacer()
+                }
+                .padding()
+                .frame(width: UIScreen.main.bounds.width)
+                Image(albums[index].name)
+                    .resizable()
+                    .frame(width: frame,height: frame)
+                    .cornerRadius(10.0)
+                    .shadow(color: Color(uiColor: lightShadowColor),
+                            radius: 1, x: 3, y: 3)
+                    .shadow(color: Color(uiColor: darkShadowColor),
+                            radius: 1, x: -3, y: -3)
+                
+                HStack{
+                    VStack(alignment: .leading){
+                        Text(albums[index].name)
+                            .font(.system(size:35))
+                            .foregroundColor(.white)
+                        Text(albums[index].singer)
+                            .font(.system(size:25))
+                            .foregroundColor(.gray)
+                    }
+                    Spacer()
+                }
+                .padding()
+                .frame(width: UIScreen.main.bounds.width)
+                
+                ZStack(alignment: .leading) {
+                    Rectangle()
+                        .foregroundColor(Color(uiColor: .systemGray6))
+                        .frame(height: 10)
+                    Rectangle()
+                        .foregroundColor(Color(uiColor: .systemGray4))
+                        .frame(width: progress * UIScreen.main.bounds.width, height: 10)
+                        .gesture(DragGesture()
+                            .onChanged { value in
+                                self.progress = min(max(value.location.x / UIScreen.main.bounds.width, 0), 1)
+                            }
+                        )
+                }
+                .padding()
+                .frame(width: UIScreen.main.bounds.width)
+                HStack{
+                    Text("\(Int(Double(time)*progress)/60):\(Int(Double(time)*progress)%60)")
+                    Spacer()
+                    Text("-\(Int(Double(time)*(1-progress))/60):\(Int(Double(time)*(1-progress))%60)")
+                }
+                .padding()
+                .frame(width: UIScreen.main.bounds.width)
+                HStack{
+                    Spacer()
+                    Button(action: {
+                        withAnimation(.easeIn){
+                            index=(index+7)%8
+                        }
+                    }){
+                        Image(systemName: "backward.fill")
+                            .resizable()
+                            .frame(width:25,height: 18)
+                    }.foregroundColor(.white)
+                    Spacer()
+                    Button(action: {
+                        withAnimation(.spring()){
+                            isPlayed.toggle()
+                    }}){
+                        if(isPlayed){
+                            Image(systemName: "pause.fill")
+                                .resizable()
+                                .frame(width:25,height: 25)
+                        }else{
+                            Image(systemName: "play.fill")
+                                .resizable()
+                                .frame(width:25,height: 25)
+                                
+                        }
+                    }.foregroundColor(.white)
+                        .padding(.horizontal)
+                    Spacer()
+                    Button(action: {
+                        withAnimation(.easeIn){
+                            index=(index+1)%8
+                        }
+                    }){
+                        Image(systemName: "forward.fill")
+                            .resizable()
+                            .frame(width:25,height: 18)
+                    }.foregroundColor(.white)
+                    Spacer()
+                }.frame(width: UIScreen.main.bounds.width)
+                Spacer()
+            }
+        }
+    }
+}
+
 struct pCard: View{
     var album:Album
     var wsize=160.0
@@ -166,8 +320,6 @@ struct DetailView: View {
 struct MusicView: View {
     var album:Album
     //环境值
-    let lightShadowColor = UIColor(red: 0.820, green: 0.851,blue: 0.902, alpha: 1.0)
-    let darkShadowColor = UIColor(red: 1.000, green: 1.000,blue: 1.000, alpha: 1.0)
     @Environment(\.presentationMode) var mode
     var body: some View {
         ScrollView{
@@ -178,9 +330,9 @@ struct MusicView: View {
                     .frame(width:250,height: 250)
                     .cornerRadius(30.0)
                     .shadow(color: Color(uiColor: lightShadowColor),
-                            radius: 5, x: 6, y: 6)
+                            radius: 3, x: 3, y: 3)
                     .shadow(color: Color(uiColor: darkShadowColor),
-                            radius: 5, x: -6, y: -6)
+                            radius: 3, x: -3, y: -3)
                 Text(album.name)
                     .font(.system(size:30))
                     .fontWeight(.medium)
@@ -283,6 +435,7 @@ struct MusicView: View {
     }
 }
 struct listen: View{
+    @Binding var a:Int
     var body: some View{
         NavigationView(){
             ScrollView{
