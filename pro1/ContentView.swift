@@ -76,7 +76,7 @@ struct ContentView: View {
             }.accentColor(.red)
                 .fullScreenCover(isPresented: $showModal){
                     FullScreenView.init(progress:$progress,isPlayed: $isPlayed, index: $index,time:albums[index].time)
-                    }
+                }
                 .overlay(
                     VStack() {
                         Divider()
@@ -94,23 +94,24 @@ struct ContentView: View {
                             Button(action: {
                                 withAnimation(.linear){
                                     isPlayed.toggle()
-                            }}){
-                                if(isPlayed){
-                                    Image(systemName: "pause.fill")
-                                        .resizable()
-                                        .frame(width:25,height: 25)
-                                }else{
-                                    Image(systemName: "play.fill")
-                                        .resizable()
-                                        .frame(width:25,height: 25)
+                                }}){
+                                    if(isPlayed){
+                                        Image(systemName: "pause.fill")
+                                            .resizable()
+                                            .frame(width:25,height: 25)
+                                    }else{
+                                        Image(systemName: "play.fill")
+                                            .resizable()
+                                            .frame(width:25,height: 25)
                                         
-                                }
-                            }.foregroundColor(.black)
+                                    }
+                                }.foregroundColor(.black)
                                 .padding(.horizontal)
                             
                             Button(action: {
                                 withAnimation(.easeIn){
                                     index=(index+1)%8
+                                    progress=0.01
                                 }
                             }){
                                 Image(systemName: "forward.fill")
@@ -155,7 +156,7 @@ struct FullScreenView: View {
                             .resizable()
                             .frame(width: 20,height: 20)
                             .foregroundColor(.gray)
-                            
+                        
                     }.padding([.top, .leading], 6.0)
                     Spacer()
                 }
@@ -197,7 +198,6 @@ struct FullScreenView: View {
                             }
                         )
                 }
-                //.padding()
                 .frame(width: UIScreen.main.bounds.width*0.9)
                 HStack{
                     Text(String(format:"%01d",Int(Double(time)*progress)/60)+":"+String(format:"%02d",Int(Double(time)*progress)%60))
@@ -226,18 +226,18 @@ struct FullScreenView: View {
                     Button(action: {
                         withAnimation(.spring()){
                             isPlayed.toggle()
-                    }}){
-                        if(isPlayed){
-                            Image(systemName: "pause.fill")
-                                .resizable()
-                                .frame(width:25,height: 25)
-                        }else{
-                            Image(systemName: "play.fill")
-                                .resizable()
-                                .frame(width:25,height: 25)
+                        }}){
+                            if(isPlayed){
+                                Image(systemName: "pause.fill")
+                                    .resizable()
+                                    .frame(width:25,height: 25)
+                            }else{
+                                Image(systemName: "play.fill")
+                                    .resizable()
+                                    .frame(width:25,height: 25)
                                 
-                        }
-                    }.foregroundColor(.white)
+                            }
+                        }.foregroundColor(.white)
                         .padding(.horizontal)
                     Spacer()
                     Button(action: {
@@ -342,7 +342,7 @@ struct MusicView: View {
                 Text(album.name)
                     .font(.system(size:30))
                     .fontWeight(.medium)
-                    
+                
                 Text(album.singer)
                     .font(.system(size:25))
                     .fontWeight(.light)
@@ -459,17 +459,17 @@ struct listen: View{
                     
                     
                     Group{
-                        Divider()
+                        Divider().padding(.horizontal)
                         NavigationLink(
                             destination: DetailView().navigationTitle("Top picks")
                         ){
-                         Text("Top picks")
-                             .font(.system(size:22))
-                             .fontWeight(.heavy)
-                             .padding(.leading, 10.0)
+                            Text("Top picks")
+                                .font(.system(size:22))
+                                .fontWeight(.heavy)
+                                .padding(.leading, 10.0)
                         }.foregroundColor(.black)
                         
-                           
+                        
                         ScrollView(.horizontal,showsIndicators: false){
                             HStack(spacing:5){
                                 Spacer()
@@ -489,10 +489,10 @@ struct listen: View{
                         NavigationLink(
                             destination: DetailView().navigationTitle("Recent played")
                         ){
-                         Text("Recent played >")
-                             .font(.system(size:22))
-                             .fontWeight(.heavy)
-                             .padding(.leading, 10.0)
+                            Text("Recent played >")
+                                .font(.system(size:22))
+                                .fontWeight(.heavy)
+                                .padding(.leading, 10.0)
                         }.foregroundColor(.black)
                         
                         ScrollView(.horizontal,showsIndicators: false){
@@ -514,10 +514,10 @@ struct listen: View{
                         NavigationLink(
                             destination: DetailView().navigationTitle("Pop Music")
                         ){
-                         Text("Pop Music")
-                             .font(.system(size:22))
-                             .fontWeight(.heavy)
-                             .padding(.leading, 10.0)
+                            Text("Pop Music")
+                                .font(.system(size:22))
+                                .fontWeight(.heavy)
+                                .padding(.leading, 10.0)
                         }.foregroundColor(.black)
                         
                         ScrollView(.horizontal,showsIndicators: false){
@@ -552,17 +552,17 @@ struct browse: View{
                     }
                     
                     Group{
-                        Divider()
+                        Divider().padding(.horizontal)
                         NavigationLink(
                             destination: DetailView().navigationTitle("Try now")
                         ){
-                         Text("Try now >")
-                             .font(.system(size:22))
-                             .fontWeight(.heavy)
-                             .padding(.leading, 10.0)
+                            Text("Try now >")
+                                .font(.system(size:22))
+                                .fontWeight(.heavy)
+                                .padding(.leading, 10.0)
                         }.foregroundColor(.black)
                         
-                           
+                        
                         ScrollView(.horizontal,showsIndicators: false){
                             HStack(spacing:5){
                                 Spacer()
@@ -582,13 +582,13 @@ struct browse: View{
                         NavigationLink(
                             destination: DetailView().navigationTitle("Best choice")
                         ){
-                         Text("Best choice >")
-                             .font(.system(size:22))
-                             .fontWeight(.heavy)
-                             .padding(.leading, 10.0)
+                            Text("Best choice >")
+                                .font(.system(size:22))
+                                .fontWeight(.heavy)
+                                .padding(.leading, 10.0)
                         }.foregroundColor(.black)
                         
-                           
+                        
                         ScrollView(.horizontal,showsIndicators: false){
                             HStack(spacing:5){
                                 Spacer()
@@ -608,12 +608,12 @@ struct browse: View{
                         NavigationLink(
                             destination: DetailView().navigationTitle("Great")
                         ){
-                         Text("Great >")
-                             .font(.system(size:22))
-                             .fontWeight(.heavy)
-                             .padding(.leading, 10.0)
+                            Text("Great >")
+                                .font(.system(size:22))
+                                .fontWeight(.heavy)
+                                .padding(.leading, 10.0)
                         }.foregroundColor(.black)
-                           
+                        
                         ScrollView(.horizontal,showsIndicators: false){
                             HStack(spacing:5){
                                 Spacer()
@@ -646,17 +646,17 @@ struct radio: View{
                     }
                     
                     Group{
-                        Divider()
+                        Divider().padding(.horizontal)
                         NavigationLink(
                             destination: DetailView().navigationTitle("Recommended")
                         ){
-                         Text("Recommended >")
-                             .font(.system(size:22))
-                             .fontWeight(.heavy)
-                             .padding(.leading, 10.0)
+                            Text("Recommended >")
+                                .font(.system(size:22))
+                                .fontWeight(.heavy)
+                                .padding(.leading, 10.0)
                         }.foregroundColor(.black)
                         
-                           
+                        
                         ScrollView(.horizontal,showsIndicators: false){
                             HStack(spacing:5){
                                 Spacer()
@@ -676,13 +676,13 @@ struct radio: View{
                         NavigationLink(
                             destination: DetailView().navigationTitle("Recent played >")
                         ){
-                         Text("Recent played >")
-                             .font(.system(size:22))
-                             .fontWeight(.heavy)
-                             .padding(.leading, 10.0)
+                            Text("Recent played >")
+                                .font(.system(size:22))
+                                .fontWeight(.heavy)
+                                .padding(.leading, 10.0)
                         }.foregroundColor(.black)
                         
-                           
+                        
                         ScrollView(.horizontal,showsIndicators: false){
                             HStack(spacing:5){
                                 Spacer()
@@ -695,8 +695,6 @@ struct radio: View{
                             }
                         }
                     }
-                    
-                    
                 }
             }
         }
@@ -704,13 +702,96 @@ struct radio: View{
     }
 }
 struct library: View{
+    let Icon=[["music.note.list","Play list"],
+              ["music.mic","Musician"],
+              ["square.stack","Album"],
+              ["music.note","Music"],
+              ["person.crop.square","Recommend"],
+              ["tv","TV & Movie"]
+            ]
     var body: some View{
-        Text("go")
+        NavigationView(){
+            ScrollView{
+                VStack(alignment:.leading, spacing: 0){
+                    Group{
+                        HStack{
+                            Text("Library")
+                                .font(.system(size:35))
+                                .fontWeight(.medium)
+                                .padding(.leading, 10.0)
+                            Spacer()
+                        }
+                        Divider().padding(.horizontal)
+                    }
+                    
+                    ForEach(0 ... 5, id: \.self) { index in
+                        Group{
+                            HStack{
+                                Image(systemName: Icon[index][0])
+                                    .resizable()
+                                    .frame(width: 25,height: 25)
+                                    .foregroundColor(.red)
+                                    .padding(.all)
+                                Text(Icon[index][1])
+                                Spacer()
+                            }
+                            Divider().padding(.horizontal)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
+
 struct search: View{
+    @State var text=""
     var body: some View{
-        Text("go")
+        NavigationView(){
+            ScrollView{
+                VStack(alignment:.leading, spacing: 0){
+                    Group{
+                        HStack{
+                            Text("Search")
+                                .font(.system(size:35))
+                                .fontWeight(.medium)
+                                .padding(.leading, 10.0)
+                            Spacer()
+                        }
+                        Divider().padding(.horizontal)
+                    }
+                    Spacer()
+                    Text("Browse")
+                        .font(.system(size:20))
+                        .fontWeight(.medium)
+                        .padding(.leading, 10.0)
+                    Spacer()
+                    TextField("musician, music and more",text:$text)
+                        .padding(7)
+                        .padding(.horizontal,25)
+                        .background(Color(uiColor: .systemGray6))
+                        .cornerRadius(8)
+                        .overlay(
+                            Image(systemName: "magnifyingglass")
+                                .foregroundColor(.red)
+                                .frame(minWidth: 0,maxWidth: .infinity,alignment: .leading)
+                                .padding(.leading,8)
+                        )
+                        .padding(.horizontal,10)
+                    
+                    ForEach(0 ... 3, id: \.self) { index in
+                        Spacer()
+                        HStack{
+                            Spacer()
+                            pCard(album: albums[index*2],mul:1.0)
+                            Spacer()
+                            pCard(album: albums[index*2+1],mul:1.0)
+                            Spacer()
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 struct ContentView_Previews: PreviewProvider {
