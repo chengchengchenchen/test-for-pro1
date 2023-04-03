@@ -17,19 +17,20 @@ struct Album{
 }
 
 let albums = [
-    Album(name:"mojito", singer: "Jay Chou", text:"Mojito", describe:"best for you", time: 190),
-    Album(name:"ed", singer: "none", text:"divide", describe:"best for you", time: 200),
-    Album(name:"hybrid theory", singer: "Jzhou", text:"in the end", describe:"best for you", time: 190),
-    Album(name:"linkin park1", singer: "Jzhou", text:"last in the fire", describe:"best for you", time: 190),
-    Album(name:"taylor", singer: "Jzhou", text:"taylor", describe:"best for you", time: 190),
-    Album(name:"rise", singer: "Jzhou", text:"for S8 IG", describe:"best for you", time: 190),
-    Album(name:"ignite", singer: "Jzhou", text:"league of legends", describe:"best for you", time: 190),
-    Album(name:"adam", singer: "Jzhou", text:"chasing the sun", describe:"best for you", time: 190)
+    Album(name:"Mojito", singer: "Jay Chou", text:"Mojito", describe:"best for you", time: 190),
+    Album(name:"Perfect", singer: "Ed Sheeran", text:"divide", describe:"best for you", time: 263),
+    Album(name:"In the End", singer: "Linkin Park", text:"in the end", describe:"best for you", time: 216),
+    Album(name:"Numb", singer: "Linkin Park", text:"last in the fire", describe:"best for you", time: 186),
+    Album(name:"Style", singer: "Taylor Swift", text:"Taylor", describe:"best for you", time: 231),
+    Album(name:"Rise", singer: "The Glitched Mob", text:"for S8 IG", describe:"best for you", time: 192),
+    Album(name:"Ignite", singer: "Alan Walker", text:"League of Legends", describe:"best for you", time: 210),
+    Album(name:"The original high", singer: "Adam", text:"chasing the sun", describe:"best for you", time: 216)
 ]
 let lightShadowColor = UIColor(red: 0.720, green: 0.751,blue: 0.802, alpha: 1.0)
 let darkShadowColor = UIColor(red: 1.000, green: 1.000,blue: 1.000, alpha: 1.0)
 
 struct ContentView: View {
+    @State var progress:CGFloat=0.01
     @State var isPlayed = false
     @State var index=0
     @State private var showModal = false
@@ -37,7 +38,7 @@ struct ContentView: View {
     var body: some View {
         ZStack(alignment: .bottom){
             TabView{
-                listen(a: $index)
+                listen()
                     .tabItem({
                         Group{
                             Text("listen now")
@@ -74,7 +75,7 @@ struct ContentView: View {
                     })
             }.accentColor(.red)
                 .fullScreenCover(isPresented: $showModal){
-                    FullScreenView.init(isPlayed: $isPlayed, index: $index)
+                    FullScreenView.init(progress:$progress,isPlayed: $isPlayed, index: $index,time:albums[index].time)
                     }
                 .overlay(
                     VStack() {
@@ -130,10 +131,10 @@ struct ContentView: View {
 }
 struct FullScreenView: View {
     @Environment(\.presentationMode) var presentationMode
-    @State private var progress: CGFloat = 0.2
+    @Binding var progress: CGFloat
     @Binding var isPlayed:Bool
     @Binding var index:Int
-    @State var time=200
+    @State var time:Int
     
     var frame: Double {
         isPlayed ? 340 : 300
@@ -186,22 +187,25 @@ struct FullScreenView: View {
                 ZStack(alignment: .leading) {
                     Rectangle()
                         .foregroundColor(Color(uiColor: .systemGray6))
-                        .frame(height: 10)
+                        .frame(width:UIScreen.main.bounds.width*0.9,height: 10)
                     Rectangle()
                         .foregroundColor(Color(uiColor: .systemGray4))
-                        .frame(width: progress * UIScreen.main.bounds.width, height: 10)
+                        .frame(width: progress * UIScreen.main.bounds.width*0.9, height: 10)
                         .gesture(DragGesture()
                             .onChanged { value in
-                                self.progress = min(max(value.location.x / UIScreen.main.bounds.width, 0), 1)
+                                self.progress = min(max(value.location.x / UIScreen.main.bounds.width/0.9, 0), 1)
                             }
                         )
                 }
-                .padding()
-                .frame(width: UIScreen.main.bounds.width)
+                //.padding()
+                .frame(width: UIScreen.main.bounds.width*0.9)
                 HStack{
-                    Text("\(Int(Double(time)*progress)/60):\(Int(Double(time)*progress)%60)")
+                    Text(String(format:"%01d",Int(Double(time)*progress)/60)+":"+String(format:"%02d",Int(Double(time)*progress)%60))
+                        .foregroundColor(Color.init(uiColor: .systemGray6))
                     Spacer()
-                    Text("-\(Int(Double(time)*(1-progress))/60):\(Int(Double(time)*(1-progress))%60)")
+                    
+                    Text("-"+String(format:"%01d",Int(Double(time)*(1-progress))/60)+":"+String(format:"%02d",Int(Double(time)*(1-progress))%60))
+                        .foregroundColor(Color.init(uiColor: .systemGray6))
                 }
                 .padding()
                 .frame(width: UIScreen.main.bounds.width)
@@ -210,6 +214,8 @@ struct FullScreenView: View {
                     Button(action: {
                         withAnimation(.easeIn){
                             index=(index+7)%8
+                            time = albums[index].time
+                            progress=0.01
                         }
                     }){
                         Image(systemName: "backward.fill")
@@ -237,6 +243,8 @@ struct FullScreenView: View {
                     Button(action: {
                         withAnimation(.easeIn){
                             index=(index+1)%8
+                            time = albums[index].time
+                            progress=0.01
                         }
                     }){
                         Image(systemName: "forward.fill")
@@ -315,14 +323,12 @@ struct DetailView: View {
     }
 }
 
-
-
 struct MusicView: View {
     var album:Album
     //环境值
     @Environment(\.presentationMode) var mode
     var body: some View {
-        ScrollView{
+        ScrollView(showsIndicators: false){
             VStack(alignment: .center){
                 Spacer()
                 Image(album.name)
@@ -425,17 +431,14 @@ struct MusicView: View {
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading: Button(action : {
-            // 点击按钮后的操作
             self.mode.wrappedValue.dismiss()
         }){
-            //按钮及其样式
             Image(systemName: "chevron.left")
                 .foregroundColor(.gray)
         })
     }
 }
 struct listen: View{
-    @Binding var a:Int
     var body: some View{
         NavigationView(){
             ScrollView{
@@ -455,30 +458,31 @@ struct listen: View{
                     }
                     
                     
-                    Divider()
-                    NavigationLink(
-                        destination: DetailView().navigationTitle("Top picks")
-                    ){
-                     Text("Top picks")
-                         .font(.system(size:22))
-                         .fontWeight(.heavy)
-                         .padding(.leading, 10.0)
-                    }.foregroundColor(.black)
-                    
-                       
-                    ScrollView(.horizontal,showsIndicators: false){
-                        HStack(spacing:5){
-                            Spacer()
-                            NavigationLink(destination: MusicView(album:albums[0])){
-                                pCard(album:albums[0],wsize:250.0,dis:true)
+                    Group{
+                        Divider()
+                        NavigationLink(
+                            destination: DetailView().navigationTitle("Top picks")
+                        ){
+                         Text("Top picks")
+                             .font(.system(size:22))
+                             .fontWeight(.heavy)
+                             .padding(.leading, 10.0)
+                        }.foregroundColor(.black)
+                        
+                           
+                        ScrollView(.horizontal,showsIndicators: false){
+                            HStack(spacing:5){
+                                Spacer()
+                                ForEach(0 ... 2, id: \.self) { index in
+                                    NavigationLink(destination: MusicView(album:albums[index])){
+                                        pCard(album:albums[index],wsize:250.0,dis:true)
+                                    }
+                                    Spacer()
+                                }
                             }
-                            Spacer()
-                            pCard(album:albums[1],wsize:250.0)
-                            Spacer()
-                            pCard(album:albums[2],wsize:250.0)
-                            Spacer()
                         }
                     }
+                    
                     Group{
                         Spacer()
                         Spacer()
@@ -494,12 +498,12 @@ struct listen: View{
                         ScrollView(.horizontal,showsIndicators: false){
                             HStack(spacing:5){
                                 Spacer()
-                                pCard(album:albums[3])
-                                Spacer()
-                                pCard(album:albums[4])
-                                Spacer()
-                                pCard(album:albums[5])
-                                Spacer()
+                                //
+                                ForEach(3 ... 5, id: \.self) { index in
+                                    NavigationLink(
+                                        destination:MusicView(album:albums[index])){pCard(album:albums[index])}
+                                    Spacer()
+                                }
                             }
                         }
                     }
@@ -519,12 +523,12 @@ struct listen: View{
                         ScrollView(.horizontal,showsIndicators: false){
                             HStack(spacing:5){
                                 Spacer()
-                                pCard(album:albums[6])
-                                Spacer()
-                                pCard(album:albums[7])
-                                Spacer()
-                                pCard(album:albums[2])
-                                Spacer()
+                                //
+                                ForEach(6 ... 8, id: \.self) { index in
+                                    NavigationLink(
+                                        destination:MusicView(album:albums[index%8])){pCard(album:albums[index%8])}
+                                    Spacer()
+                                }
                             }
                         }
                     }
@@ -536,12 +540,167 @@ struct listen: View{
 }
 struct browse: View{
     var body: some View{
-        Text("read")
+        NavigationView(){
+            ScrollView{
+                VStack(alignment:.leading, spacing: 0){
+                    HStack{
+                        Text("Browse")
+                            .font(.system(size:35))
+                            .fontWeight(.medium)
+                            .padding(.leading, 10.0)
+                        Spacer()
+                    }
+                    
+                    Group{
+                        Divider()
+                        NavigationLink(
+                            destination: DetailView().navigationTitle("Try now")
+                        ){
+                         Text("Try now >")
+                             .font(.system(size:22))
+                             .fontWeight(.heavy)
+                             .padding(.leading, 10.0)
+                        }.foregroundColor(.black)
+                        
+                           
+                        ScrollView(.horizontal,showsIndicators: false){
+                            HStack(spacing:5){
+                                Spacer()
+                                ForEach(2 ... 5, id: \.self) { index in
+                                    NavigationLink(destination: MusicView(album:albums[index])){
+                                        pCard(album:albums[index],wsize:300.0,dis:true, mul: 1.0)
+                                    }
+                                    Spacer()
+                                }
+                            }
+                        }
+                    }
+                    
+                    Group{
+                        Spacer()
+                        Spacer()
+                        NavigationLink(
+                            destination: DetailView().navigationTitle("Best choice")
+                        ){
+                         Text("Best choice >")
+                             .font(.system(size:22))
+                             .fontWeight(.heavy)
+                             .padding(.leading, 10.0)
+                        }.foregroundColor(.black)
+                        
+                           
+                        ScrollView(.horizontal,showsIndicators: false){
+                            HStack(spacing:5){
+                                Spacer()
+                                ForEach(0 ... 3, id: \.self) { index in
+                                    NavigationLink(destination: MusicView(album:albums[index])){
+                                        pCard(album:albums[index],wsize:200.0,mul: 1.0)
+                                    }
+                                    Spacer()
+                                }
+                            }
+                        }
+                    }
+                    
+                    Group{
+                        Spacer()
+                        Spacer()
+                        NavigationLink(
+                            destination: DetailView().navigationTitle("Great")
+                        ){
+                         Text("Great >")
+                             .font(.system(size:22))
+                             .fontWeight(.heavy)
+                             .padding(.leading, 10.0)
+                        }.foregroundColor(.black)
+                           
+                        ScrollView(.horizontal,showsIndicators: false){
+                            HStack(spacing:5){
+                                Spacer()
+                                ForEach(4 ... 7, id: \.self) { index in
+                                    NavigationLink(destination: MusicView(album:albums[index])){
+                                        pCard(album:albums[index],wsize:200.0,mul: 1.0)
+                                    }
+                                    Spacer()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
     }
 }
 struct radio: View{
     var body: some View{
-        Text("go")
+        NavigationView(){
+            ScrollView{
+                VStack(alignment:.leading, spacing: 0){
+                    HStack{
+                        Text("Radio")
+                            .font(.system(size:35))
+                            .fontWeight(.medium)
+                            .padding(.leading, 10.0)
+                        Spacer()
+                    }
+                    
+                    Group{
+                        Divider()
+                        NavigationLink(
+                            destination: DetailView().navigationTitle("Recommended")
+                        ){
+                         Text("Recommended >")
+                             .font(.system(size:22))
+                             .fontWeight(.heavy)
+                             .padding(.leading, 10.0)
+                        }.foregroundColor(.black)
+                        
+                           
+                        ScrollView(.horizontal,showsIndicators: false){
+                            HStack(spacing:5){
+                                Spacer()
+                                ForEach(2 ... 3, id: \.self) { index in
+                                    NavigationLink(destination: MusicView(album:albums[index])){
+                                        pCard(album:albums[index],wsize:350.0,dis:true, mul: 1.0)
+                                    }
+                                    Spacer()
+                                }
+                            }
+                        }
+                    }
+                    
+                    Group{
+                        Spacer()
+                        Spacer()
+                        NavigationLink(
+                            destination: DetailView().navigationTitle("Recent played >")
+                        ){
+                         Text("Recent played >")
+                             .font(.system(size:22))
+                             .fontWeight(.heavy)
+                             .padding(.leading, 10.0)
+                        }.foregroundColor(.black)
+                        
+                           
+                        ScrollView(.horizontal,showsIndicators: false){
+                            HStack(spacing:5){
+                                Spacer()
+                                ForEach(0 ... 3, id: \.self) { index in
+                                    NavigationLink(destination: MusicView(album:albums[index])){
+                                        pCard(album:albums[index],wsize:200.0,mul: 1.0)
+                                    }
+                                    Spacer()
+                                }
+                            }
+                        }
+                    }
+                    
+                    
+                }
+            }
+        }
+        
     }
 }
 struct library: View{
